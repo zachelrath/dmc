@@ -455,8 +455,18 @@ function runMetadataDeploy(map, client, opts) {
       if(err.errorMessage) {
         logger.error(err.errorMessage);
       }
-      reject(new Error('metatadata api deployment failed'));
+      reject(new Error('metadata api deployment failed'));
     });
+
+    function putFileInSrcDirectory(filePath) {
+      if (filePath && !filePath.startsWith("src/")) {
+        var parts = filePath.split("/");
+        parts[0] = "src";
+        return parts.join("/");
+      } else {
+        return filePath;
+      }
+    }
 
     // iterator for adding files
     // checks for existence and adds
@@ -475,7 +485,9 @@ function runMetadataDeploy(map, client, opts) {
         if(stat.isDirectory()) {
           archive.directory(p);
         } else {
-          archive.file(p);
+          archive.file(p, {
+            name: putFileInSrcDirectory(p),
+          });
         }
         logger.list(p);
 
